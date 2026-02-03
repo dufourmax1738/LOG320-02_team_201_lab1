@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 
 // IMPORTANT: Il ne faut pas changer la signature des méthodes
 // de cette classe, ni le nom de la classe.
@@ -13,10 +14,19 @@ class CPUPlayer
     // au début de votre MinMax ou Alpha Beta.
     private int numExploredNodes;
 
+    private Mark mark;
+    private Mark otherMark;
+
     // Le constructeur reçoit en paramètre le
     // joueur MAX (X ou O)
     public CPUPlayer(Mark cpu){
-
+        if(cpu == Mark.X){
+            mark = cpu;
+            otherMark = Mark.O;
+        }else{
+            mark = Mark.O;
+            otherMark = Mark.X;
+        }
     }
 
     // Ne pas changer cette méthode
@@ -30,17 +40,51 @@ class CPUPlayer
     public ArrayList<Move> getNextMoveMinMax(Board board)
     {
         numExploredNodes = 0;
+        int maxScore = -101;
 
-        //TODO
-        ArrayList<Move> nextMoves = new ArrayList<>();
-        for(int r = 0; r < 3; r++){
-            for(int c = 0; c < 3; c++){
-                if (board.getBoard()[r][c] == Mark.EMPTY){
-                    nextMoves.add(new Move(r, c));
-                }
+        ArrayList<Move> bestNextMoves = new ArrayList<Move>();
+
+        for (Move move : board.getPossibleMoves()) {
+            Board tempBoard = new Board(board);
+            tempBoard.play(move,mark);
+            int score  = minMax(tempBoard,"MIN");
+
+            if(score > maxScore){
+                maxScore = score;
+                bestNextMoves.clear();
+                bestNextMoves.add(move);
+            }else if (score == maxScore){
+                bestNextMoves.add(move);
             }
         }
-        return nextMoves;
+        return bestNextMoves;
+    }
+
+    public int minMax(Board board, String direction){
+        int evaluation = board.evaluate(mark);
+        if(!board.hasSpace() || evaluation==100 || evaluation==-100){
+            return evaluation;
+        }
+        
+        if (direction.equals("MAX")){
+            int maxScore = -101;
+            for (Move possibleMove : board.getPossibleMoves()) {
+                Board tempBoard = new Board(board);
+                tempBoard.play(possibleMove, mark);
+                int score = minMax(tempBoard,"MIN");
+                maxScore = Math.max(maxScore, score);
+            }
+            return maxScore;
+        } else{
+            int minScore = 101;
+            for (Move possibleMove : board.getPossibleMoves()) {
+                Board tempBoard = new Board(board);
+                tempBoard.play(possibleMove, otherMark);
+                int score = minMax(tempBoard,"MAX");
+                minScore = Math.min(minScore, score);
+            }
+            return minScore;
+        }
     }
 
     // Retourne la liste des coups possibles.  Cette liste contient

@@ -19,8 +19,30 @@ class Board
         }
     }
 
+    public Board(Board board) {
+        this.board = new Mark[3][3];
+        for(int r = 0; r < 3; r++){
+            for(int c = 0; c < 3; c++){
+                this.board[r][c] = board.getBoard()[r][c];
+            }
+        }
+    }
+
     public Mark[][] getBoard(){
         return board;
+    }
+
+    public ArrayList<Move> getPossibleMoves(){
+        ArrayList<Move> moves = new ArrayList<>();
+
+        for(int r = 0; r < 3; r++){
+            for(int c = 0; c < 3; c++){
+                if(board[r][c] == Mark.EMPTY){
+                    moves.add(new Move(r,c));
+                }
+            }
+        }
+        return moves;
     }
 
     // Place la pièce 'mark' sur le plateau, à la
@@ -86,6 +108,17 @@ class Board
         }
 
         //or else
+        return false;
+    }
+
+    public boolean hasSpace(){
+        for(int r = 0; r < 3; r++){
+            for(int c = 0; c < 3; c++){
+                if (board[r][c] == Mark.EMPTY){
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
