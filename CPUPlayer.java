@@ -57,10 +57,14 @@ class CPUPlayer
                 bestNextMoves.add(move);
             }
         }
+                        System.out.println(numExploredNodes + " nodes");
+
         return bestNextMoves;
     }
 
     public int minMax(Board board, String direction){
+        numExploredNodes++;
+
         int evaluation = board.evaluate(mark);
         if(!board.hasSpace() || evaluation==100 || evaluation==-100){
             return evaluation;
@@ -93,8 +97,63 @@ class CPUPlayer
     public ArrayList<Move> getNextMoveAB(Board board){
         numExploredNodes = 0;
 
-        //todo
-        return new ArrayList<>();
+        int maxScore = -101;
+
+        ArrayList<Move> bestNextMoves = new ArrayList<Move>();
+
+        for (Move move : board.getPossibleMoves()) {
+            Board tempBoard = new Board(board);
+            tempBoard.play(move,mark);
+            int score  = alphaBeta(tempBoard,"MIN",-101,101);
+
+            if(score > maxScore){
+                maxScore = score;
+                bestNextMoves.clear();
+                bestNextMoves.add(move);
+            }else if (score == maxScore){
+                bestNextMoves.add(move);
+            }
+        }
+        System.out.println(numExploredNodes + " nodes");
+
+        return bestNextMoves;
+    }
+
+    public int alphaBeta(Board board, String direction, int a, int b){
+        numExploredNodes++;
+
+        int evaluation = board.evaluate(mark);
+        if(!board.hasSpace() || evaluation==100 || evaluation==-100){
+            return evaluation;
+        }
+        
+        if (direction.equals("MAX")){
+            int maxScore = -101;
+            for (Move possibleMove : board.getPossibleMoves()) {
+                Board tempBoard = new Board(board);
+                tempBoard.play(possibleMove, mark);
+                int score = alphaBeta(tempBoard,"MIN",a,b);
+                maxScore = Math.max(maxScore, score);
+                a = Math.max(a,maxScore);
+                if(a >= b){
+                    break;
+                }
+            }
+            return maxScore;
+        } else{
+            int minScore = 101;
+            for (Move possibleMove : board.getPossibleMoves()) {
+                Board tempBoard = new Board(board);
+                tempBoard.play(possibleMove, otherMark);
+                int score = alphaBeta(tempBoard,"MAX",-101,101);
+                minScore = Math.min(minScore, score);
+                b = Math.min(b, minScore);
+                if(a >= b){
+                    break;
+                }
+            }
+            return minScore;
+        }
     }
 
 }
